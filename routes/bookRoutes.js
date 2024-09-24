@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const bookController = require('../controllers/bookController');
-const upload = require('../utils/multer');
+const { upload } = require('../utils/multer');
 
 // Rota para upload de livros
-router.post('/upload', upload.single('pdf'), bookController.uploadBook);
+router.post('/upload', upload, bookController.uploadBook);
 
 // Rota para listar todos os livros
 router.get('/', bookController.getAllBooks);
