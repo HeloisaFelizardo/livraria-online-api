@@ -17,6 +17,10 @@ connectDB();
 const bookRoutes = require('./routes/bookRoutes');
 app.use('/books', bookRoutes);
 
+// Importa as rotas de usuários
+const userRoutes = require('./routes/userRoutes');
+app.use('/users', userRoutes);
+
 // Rota básica
 app.get('/', (req, res) => {
   res.send('API de Livraria Online');
