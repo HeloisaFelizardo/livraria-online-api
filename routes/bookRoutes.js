@@ -14,9 +14,9 @@ router.get('/', bookController.getAllBooks);
 router.get('/:id', bookController.getBookById);
 
 // Rota para atualizar um livro
-router.put('/:id', bookController.updateBook);
+router.put('/:id', authMiddleware,  bookController.updateBook);
 
 // Rota para deletar um livro
-router.delete('/:id', bookController.deleteBook);
+router.delete('/:id', authMiddleware, bookController.deleteBook);
 
 module.exports = router;

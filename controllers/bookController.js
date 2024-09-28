@@ -5,9 +5,15 @@ const path = require('path');
 exports.uploadBook = async (req, res) => {
   console.log('Requisição recebida para upload');
 
-// Verifica se ambos os arquivos foram enviados
+  //Verifica se o titulo do livro já existe
+  const bookExists = await Book.findOne({title});
+  if (bookExists) {
+    return res.status(400).json({error: 'Livro já cadastrado.'});
+  }
+
+  // Verifica se ambos os arquivos foram enviados
   if (!req.files || !req.files['pdf'] || !req.files['cover']) {
-    return res.status(400).json({ error: 'Arquivos PDF e capa são obrigatórios.' });
+    return res.status(400).json({error: 'Arquivos PDF e capa são obrigatórios.'});
   }
 
   // Obtém os caminhos dos arquivos enviados
@@ -15,7 +21,7 @@ exports.uploadBook = async (req, res) => {
   const coverFilePath = path.resolve(req.files['cover'][0].path);  // Capa na pasta uploads/covers/
 
   try {
-    const { title, author, description } = req.body;
+    const {title, author, description} = req.body;
 
     const newBook = new Book({
       title,
@@ -35,7 +41,7 @@ exports.uploadBook = async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao salvar o livro no MongoDB:', error);
-    res.status(500).json({ error: 'Erro ao salvar o livro no MongoDB.' });
+    res.status(500).json({error: 'Erro ao salvar o livro no MongoDB.'});
   }
 };
 
@@ -58,14 +64,14 @@ exports.getBookById = async (req, res) => {
 
     // Verificando se o livro existe
     if (!book) {
-      return res.status(404).json({ error: 'Livro não encontrado' });
+      return res.status(404).json({error: 'Livro não encontrado'});
     }
 
     // Enviando os dados do livro (incluindo a URL da capa)
     res.status(200).json(book);
   } catch (error) {
     console.error('Erro ao buscar o livro:', error);
-    res.status(500).json({ error: 'Erro ao buscar o livro' });
+    res.status(500).json({error: 'Erro ao buscar o livro'});
   }
 };
 
