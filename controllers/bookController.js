@@ -1,34 +1,42 @@
 const Book = require('../models/Book');
 const path = require('path');
+const fs = require('fs');
 
 // Função para fazer upload de um livro e extrair a capa
 exports.uploadBook = async (req, res) => {
   console.log('Requisição recebida para upload');
 
-  //Verifica se o titulo do livro já existe
-  const bookExists = await Book.findOne({title});
+  // Extraia title, author e description do corpo da requisição
+  const { title, author, description } = req.body;
+
+  // Verifica se o título do livro já existe
+  const bookExists = await Book.findOne({ title });
   if (bookExists) {
-    return res.status(400).json({error: 'Livro já cadastrado.'});
+    return res.status(400).json({ error: 'Livro já cadastrado.' });
   }
 
   // Verifica se ambos os arquivos foram enviados
   if (!req.files || !req.files['pdf'] || !req.files['cover']) {
-    return res.status(400).json({error: 'Arquivos PDF e capa são obrigatórios.'});
+    return res.status(400).json({ error: 'Arquivos PDF e capa são obrigatórios.' });
   }
 
   // Obtém os caminhos dos arquivos enviados
   const pdfFilePath = path.resolve(req.files['pdf'][0].path);  // PDF da pasta uploads/
   const coverFilePath = path.resolve(req.files['cover'][0].path);  // Capa na pasta uploads/covers/
 
-  try {
-    const {title, author, description} = req.body;
+  // Lê o arquivo PDF e converte em buffer
+  const pdfBuffer = fs.readFileSync(pdfFilePath);
 
+  // Lê a imagem da capa e converte em buffer
+  const coverBuffer = fs.readFileSync(coverFilePath);
+
+  try {
     const newBook = new Book({
       title,
       author,
       description,
-      pdfUrl: pdfFilePath,
-      coverUrl: coverFilePath,
+      pdfUrl: pdfBuffer,
+      coverUrl: coverBuffer,
     });
 
     // Salva o livro no MongoDB
@@ -41,7 +49,7 @@ exports.uploadBook = async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao salvar o livro no MongoDB:', error);
-    res.status(500).json({error: 'Erro ao salvar o livro no MongoDB.'});
+    res.status(500).json({ error: 'Erro ao salvar o livro no MongoDB.' });
   }
 };
 
@@ -63,11 +71,14 @@ exports.getBookById = async (req, res) => {
     const book = await Book.findById(req.params.id);
 
     // Verificando se o livro existe
-    if (!book) {
+    if (!book || !book.pdf) {
       return res.status(404).json({error: 'Livro não encontrado'});
     }
 
-    // Enviando os dados do livro (incluindo a URL da capa)
+    res.set('Content-Type', 'application/pdf');
+    res.send(book.pdf);
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.send(book.coverUrl);
     res.status(200).json(book);
   } catch (error) {
     console.error('Erro ao buscar o livro:', error);

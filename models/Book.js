@@ -15,11 +15,11 @@ const bookSchema = new mongoose.Schema({
     required: true
   },
   pdfUrl: {
-    type: String,
+    type: Buffer,
     required: true
   },
   coverUrl: {
-    type: String,
+    type: Buffer,
     required: true
   },
 }, { timestamps: true });
