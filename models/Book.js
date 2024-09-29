@@ -19,7 +19,7 @@ const bookSchema = new mongoose.Schema({
     required: true
   },
   coverUrl: {
-    type: Buffer,
+    type: String,
     required: true
   },
 }, { timestamps: true });
