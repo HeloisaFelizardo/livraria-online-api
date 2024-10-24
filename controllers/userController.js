@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 // Função para registrar um novo usuário
 exports.registerUser = async (req, res) => {
 	try {
-		const { name, email, password, role } = req.body;
+		const { name, email, password } = req.body;
 
 		// Verifica se o usuário já existe
 		const userExists = await User.findOne({ email });
@@ -107,11 +107,16 @@ exports.updateUser = async (req, res) => {
 		// Verifica se o usuário autenticado está tentando atualizar a própria conta
 		// ou se o usuário autenticado é um administrador
 		if (req.user.id !== req.params.id && req.user.role !== 'admin') {
-			return res
-				.status(403)
-				.json({
-					error: 'Você só pode atualizar sua própria conta ou precisa ser um administrador.',
-				});
+			return res.status(403).json({
+				error: 'Você só pode atualizar sua própria conta ou precisa ser um administrador.',
+			});
+		}
+
+		const { password } = req.body;
+
+		if (password) {
+			const salt = await bcrypt.genSalt(10);
+			req.body.password = await bcrypt.hash(password, salt); // Hash da senha
 		}
 
 		const { email } = req.body;
