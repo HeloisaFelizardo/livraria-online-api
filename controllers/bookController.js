@@ -35,7 +35,7 @@ exports.uploadBook = async (req, res) => {
 			title,
 			author,
 			pdfUrl: pdfBuffer,
-			coverUrl: coverFilePath,
+			coverUrl: coverBuffer,
 		});
 
 		// Salva o livro no MongoDB
