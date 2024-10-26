@@ -6,45 +6,45 @@ const fs = require('fs');
 exports.uploadBook = async (req, res) => {
 	console.log('Requisição recebida para upload');
 
-	// Extraia title, author do corpo da requisição
 	const { title, author } = req.body;
 
-	// Verifica se o título do livro já existe
-	const bookExists = await Book.findOne({ title });
-	if (bookExists) {
-		return res.status(400).json({ error: 'Livro já cadastrado.' });
-	}
-
-	// Verifica se ambos os arquivos foram enviados
-	if (!req.files || !req.files['pdf'] || !req.files['cover']) {
-		return res.status(400).json({ error: 'Arquivos PDF e capa são obrigatórios.' });
-	}
-
-	// Obtém os caminhos dos arquivos enviados
-	const pdfFilePath = path.resolve(req.files['pdf'][0].path); // PDF da pasta uploads/
-	const coverFilePath = path.join('uploads', 'covers', req.files['cover'][0].filename); // Capa na pasta uploads/covers/
-
-	// Lê o arquivo PDF e converte em buffer
-	const pdfBuffer = fs.readFileSync(pdfFilePath);
-
-	// Lê a imagem da capa e converte em buffer
-	const coverBuffer = fs.readFileSync(coverFilePath);
-
 	try {
-		const newBook = new Book({
+		// Verifica se o título do livro já existe
+		if (await Book.findOne({ title })) {
+			return res.status(400).json({ error: 'Livro já cadastrado.' });
+		}
+
+		// Verifica se ambos os arquivos foram enviados
+		if (!req.files?.['pdf'] || !req.files?.['cover']) {
+			return res.status(400).json({ error: 'Arquivos PDF e capa são obrigatórios.' });
+		}
+
+		// Lê o conteúdo dos arquivos PDF e imagem da capa
+		const pdfBuffer = fs.readFileSync(path.resolve(req.files['pdf'][0].path));
+		const coverBuffer = fs.readFileSync(path.resolve(req.files['cover'][0].path));
+
+		// Cria e salva o novo livro no MongoDB
+		const newBook = await new Book({
 			title,
 			author,
 			pdfUrl: pdfBuffer,
 			coverUrl: coverBuffer,
-		});
+		}).save();
 
-		// Salva o livro no MongoDB
-		await newBook.save();
 		console.log('Livro salvo no MongoDB:', newBook);
+
+		// Limpeza de arquivos temporários
+		fs.unlinkSync(req.files['pdf'][0].path);
+		fs.unlinkSync(req.files['cover'][0].path);
 
 		res.status(201).json({
 			message: 'Livro salvo com sucesso!',
-			book: newBook,
+			book: {
+				id: newBook._id,
+				title: newBook.title,
+				author: newBook.author,
+				coverUrl: `data:image/jpeg;base64,${coverBuffer.toString('base64')}`,
+			},
 		});
 	} catch (error) {
 		console.error('Erro ao salvar o livro no MongoDB:', error);
@@ -56,9 +56,19 @@ exports.uploadBook = async (req, res) => {
 exports.getAllBooks = async (req, res) => {
 	try {
 		const books = await Book.find();
-		res.status(201).json(books);
+
+		// Mapeia os livros para converter o coverUrl de cada um para Base64
+		const booksWithBase64Cover = books.map((book) => ({
+			_id: book._id,
+			title: book.title,
+			author: book.author,
+			pdfUrl: book.pdfUrl, // ou apenas o ID do PDF se estiver armazenado em um sistema de arquivos ou serviço de armazenamento
+			coverUrl: book.coverUrl ? `data:image/jpeg;base64,${book.coverUrl.toString('base64')}` : null,
+		}));
+
+		res.status(200).json(booksWithBase64Cover);
 	} catch (error) {
-		console.error(error);
+		console.error('Erro ao buscar os livros:', error);
 		res.status(500).json({ error: 'Erro ao buscar os livros.' });
 	}
 };
