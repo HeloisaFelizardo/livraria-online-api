@@ -22,4 +22,7 @@ router.put('/:id', authMiddleware, userController.updateUser);
 // Rota para deletar um usuário
 router.delete('/:id', authMiddleware, userController.deleteUser);
 
+// Rota para verificar se um e-mail está cadastrado
+//router.get('/verify-email', authMiddleware, userController.verifyEmail);
+
 module.exports = router;
