@@ -1,6 +1,6 @@
 # API Ebooks Online
 
-O projeto parece ser uma API para uma livraria online, construída com Node.js e Express. Ele inclui funcionalidades para gerenciar usuários e livros, com autenticação e autorização usando JWT. Aqui estão alguns dos principais componentes:
+O projeto é uma API para uma livraria online, construída com Node.js e Express. Ele inclui funcionalidades para gerenciar usuários e livros, com autenticação e autorização usando JWT. Aqui estão alguns dos principais componentes:
 
 - Controladores (Controllers):
   - userController.js: Gerencia operações de usuário como registro, login, atualização e exclusão.
