@@ -23,6 +23,6 @@ router.put('/:id', authMiddleware, userController.updateUser);
 router.delete('/:id', authMiddleware, userController.deleteUser);
 
 // Rota para verificar se um e-mail está cadastrado
-//router.get('/verify-email', authMiddleware, userController.verifyEmail);
+router.post('/verify-email', authMiddleware, userController.verifyEmail);
 
 module.exports = router;

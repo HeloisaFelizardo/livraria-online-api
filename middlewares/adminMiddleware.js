@@ -19,8 +19,7 @@ const adminMiddleware = async (req, res, next) => {
 
 		// Verifica se o usuário é admin
 		if (req.user.role !== 'admin') {
-			return res.status(200).json(users.map((user) => ({ id: user.id, email: user.email }))); // Retorna apenas id e e-mail
-			//return res.status(403).json({ error: 'Acesso negado. Permissões insuficientes.' });
+			return res.status(403).json({ error: 'Acesso negado. Permissões insuficientes.' });
 		}
 		next(); // Permite o acesso se o usuário for admin
 	} catch (e) {

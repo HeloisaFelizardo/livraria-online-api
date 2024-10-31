@@ -153,6 +153,29 @@ exports.updateUser = async (req, res) => {
 	}
 };
 
+// Função para verificar se um e-mail está cadastrado
+exports.verifyEmail = async (req, res) => {
+	try {
+		const { email, id } = req.body; // Inclui o ID do usuário na requisição
+
+		if (!email) {
+			return res.status(400).json({ error: 'E-mail não fornecido.' });
+		}
+
+		// Verifica se o e-mail já está registrado por outro usuário
+		const userExists = await User.findOne({ email, _id: { $ne: id } });
+
+		if (userExists) {
+			return res.status(400).json({ error: 'Email já registrado por outro usuário.' });
+		}
+
+		res.status(200).json({ message: 'Email disponível.' });
+	} catch (e) {
+		console.error('Erro ao verificar email:', e);
+		res.status(500).json({ error: 'Erro ao verificar email.' });
+	}
+};
+
 // Função para deletar um usuário
 exports.deleteUser = async (req, res) => {
 	try {
