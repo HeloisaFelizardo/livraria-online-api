@@ -166,10 +166,12 @@ exports.verifyEmail = async (req, res) => {
 		const userExists = await User.findOne({ email, _id: { $ne: id } });
 
 		if (userExists) {
-			return res.status(400).json({ error: 'Email já registrado por outro usuário.' });
+			return res
+				.status(400)
+				.json({ error: 'Email já registrado por outro usuário.', emailExists: true });
 		}
 
-		res.status(200).json({ message: 'Email disponível.' });
+		res.status(200).json({ message: 'Email disponível.', emailExists: false });
 	} catch (e) {
 		console.error('Erro ao verificar email:', e);
 		res.status(500).json({ error: 'Erro ao verificar email.' });
