@@ -6,7 +6,7 @@ const fs = require('fs');
 exports.uploadBook = async (req, res) => {
 	console.log('Requisição recebida para upload');
 
-	const { title, author } = req.body;
+	const { title, author, description } = req.body;
 
 	try {
 		// Verifica se o título do livro já existe
@@ -27,6 +27,7 @@ exports.uploadBook = async (req, res) => {
 		const newBook = await new Book({
 			title,
 			author,
+			description: description,
 			pdfUrl: pdfBuffer,
 			coverUrl: coverBuffer,
 		}).save();
@@ -43,6 +44,7 @@ exports.uploadBook = async (req, res) => {
 				id: newBook._id,
 				title: newBook.title,
 				author: newBook.author,
+				description: newBook.description,
 				coverUrl: `data:image/jpeg;base64,${coverBuffer.toString('base64')}`,
 			},
 		});
@@ -62,6 +64,7 @@ exports.getAllBooks = async (req, res) => {
 			_id: book._id,
 			title: book.title,
 			author: book.author,
+			description: book.description,
 			pdfUrl: book.pdfUrl, // ou apenas o ID do PDF se estiver armazenado em um sistema de arquivos ou serviço de armazenamento
 			coverUrl: book.coverUrl ? `data:image/jpeg;base64,${book.coverUrl.toString('base64')}` : null,
 		}));
@@ -90,6 +93,7 @@ exports.getBookById = async (req, res) => {
 			book: {
 				title: book.title,
 				author: book.author,
+				description: book.description,
 				coverUrl: book.coverUrl, // Retorna a URL da capa
 				pdfUrl: book.pdfUrl,
 			},

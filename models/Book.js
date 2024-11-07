@@ -1,3 +1,4 @@
+const { type } = require('express/lib/response');
 const mongoose = require('mongoose');
 
 const bookSchema = new mongoose.Schema(
@@ -8,6 +9,10 @@ const bookSchema = new mongoose.Schema(
 			unique: true,
 		},
 		author: {
+			type: String,
+			required: true,
+		},
+		description: {
 			type: String,
 			required: true,
 		},
