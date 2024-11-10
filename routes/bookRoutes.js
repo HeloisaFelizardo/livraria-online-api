@@ -18,7 +18,7 @@ router.get('/:id', bookController.getBookById);
 router.get('/download/:id', authMiddleware, bookController.downloadBookPdf);
 
 // Rota para atualizar um livro (user e admin)
-router.put('/:id', authMiddleware, upload, bookController.updateBook);
+router.patch('/:id', authMiddleware, upload, bookController.updateBook);
 
 // Rota para deletar um livro (admin)
 router.delete('/:id', authMiddleware, adminMiddleware, bookController.deleteBook);
