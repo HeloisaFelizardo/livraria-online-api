@@ -130,11 +130,42 @@ exports.downloadBookPdf = async (req, res) => {
 
 // Função para atualizar um livro
 exports.updateBook = async (req, res) => {
+	console.log('Requisição recebida para atualização');
+
+	const { title, author, description } = req.body;
+
 	try {
-		const book = await Book.updateOne({ _id: req.params.id }, req.body);
-		res.status(201).json(book);
+		// Inicializa o objeto de dados de atualização
+		const updateData = {
+			title,
+			author,
+			description,
+		};
+
+		// Verifica se o arquivo PDF foi enviado
+		if (req.files?.['pdf']) {
+			const pdfBuffer = fs.readFileSync(path.resolve(req.files['pdf'][0].path));
+			updateData.pdfUrl = pdfBuffer;
+			fs.unlinkSync(req.files['pdf'][0].path); // Remove o arquivo temporário PDF
+		}
+
+		// Verifica se o arquivo de capa foi enviado
+		if (req.files?.['cover']) {
+			const coverBuffer = fs.readFileSync(path.resolve(req.files['cover'][0].path));
+			updateData.coverUrl = coverBuffer;
+			fs.unlinkSync(req.files['cover'][0].path); // Remove o arquivo temporário da capa
+		}
+
+		// Atualize o livro usando o ID
+		const book = await Book.findByIdAndUpdate(req.params.id, updateData, { new: true });
+
+		if (!book) {
+			return res.status(404).json({ error: 'Livro não encontrado.' });
+		}
+
+		res.status(200).json(book);
 	} catch (error) {
-		console.error(error);
+		console.error('Erro ao atualizar o livro:', error);
 		res.status(500).json({ error: 'Erro ao atualizar o livro.' });
 	}
 };

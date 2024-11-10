@@ -10,19 +10,19 @@ router.post('/register', userController.registerUser);
 // Rota para fazer login
 router.post('/login', userController.loginUser);
 
-// Rota para listar todos os usuários - Somente Admin pode acessar
+// Rota para listar todos os usuários (admin)
 router.get('/', authMiddleware, adminMiddleware, userController.getAllUsers);
 
-// Rota para buscar um usuário por ID
+// Rota para buscar um usuário por ID (usuario ou admin)
 router.get('/:id', authMiddleware, userController.getUserInfo);
 
-// Rota para atualizar um usuário
+// Rota para atualizar um usuário (usuario ou admin)
 router.put('/:id', authMiddleware, userController.updateUser);
 
-// Rota para deletar um usuário
+// Rota para deletar um usuário (usuario ou admin)
 router.delete('/:id', authMiddleware, userController.deleteUser);
 
-// Rota para verificar se um e-mail está cadastrado
+// Rota para verificar se um e-mail está cadastrado (usuario ou admin)
 router.post('/verify-email', authMiddleware, userController.verifyEmail);
 
 module.exports = router;
