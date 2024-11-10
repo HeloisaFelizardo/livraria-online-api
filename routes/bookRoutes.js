@@ -15,7 +15,7 @@ router.get('/', bookController.getAllBooks);
 router.get('/:id', bookController.getBookById);
 
 // Rota para baixar o PDF do livro (user e admin)
-router.get('/:id/download', authMiddleware, bookController.downloadBookPdf);
+router.get('/download/:id', authMiddleware, bookController.downloadBookPdf);
 
 // Rota para atualizar um livro (user e admin)
 router.put('/:id', authMiddleware, upload, bookController.updateBook);

@@ -115,7 +115,7 @@ exports.downloadBookPdf = async (req, res) => {
 
 		// Verifica se o conteúdo é um buffer ou uma string
 		if (Buffer.isBuffer(book.pdfUrl)) {
-			res.set('Content-Disposition', `attachment; filename=${book.title}.pdf`);
+			res.set('Content-Disposition', `attachment; filename="${book.title}.pdf"`);
 			res.set('Content-Type', 'application/pdf');
 			res.send(book.pdfUrl); // Retorna o PDF
 		} else {
@@ -133,30 +133,23 @@ exports.updateBook = async (req, res) => {
 	console.log('Requisição recebida para atualização');
 
 	const { title, author, description } = req.body;
+	const updateData = { title, author, description };
 
 	try {
-		// Inicializa o objeto de dados de atualização
-		const updateData = {
-			title,
-			author,
-			description,
-		};
-
-		// Verifica se o arquivo PDF foi enviado
+		// Processamento do arquivo PDF, se enviado
 		if (req.files?.['pdf']) {
-			const pdfBuffer = fs.readFileSync(path.resolve(req.files['pdf'][0].path));
+			const pdfBuffer = fs.readFileSync(req.files['pdf'][0].path);
 			updateData.pdfUrl = pdfBuffer;
-			fs.unlinkSync(req.files['pdf'][0].path); // Remove o arquivo temporário PDF
+			fs.unlinkSync(req.files['pdf'][0].path); // Exclui o arquivo temporário
 		}
 
-		// Verifica se o arquivo de capa foi enviado
+		// Processamento do arquivo de capa, se enviado
 		if (req.files?.['cover']) {
-			const coverBuffer = fs.readFileSync(path.resolve(req.files['cover'][0].path));
+			const coverBuffer = fs.readFileSync(req.files['cover'][0].path);
 			updateData.coverUrl = coverBuffer;
-			fs.unlinkSync(req.files['cover'][0].path); // Remove o arquivo temporário da capa
+			fs.unlinkSync(req.files['cover'][0].path); // Exclui o arquivo temporário
 		}
 
-		// Atualize o livro usando o ID
 		const book = await Book.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
 		if (!book) {
