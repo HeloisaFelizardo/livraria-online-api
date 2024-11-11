@@ -150,6 +150,12 @@ exports.updateBook = async (req, res) => {
 			fs.unlinkSync(req.files['cover'][0].path); // Exclui o arquivo temporário
 		}
 
+		// Verifica se o titulo do livro já existe
+		const bookWithSameTitle = await Book.findOne({ title, _id: { $ne: req.params.id } });
+		if (bookWithSameTitle) {
+			return res.status(400).json({ error: 'Livro já cadastrado.' });
+		}
+
 		const book = await Book.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
 		if (!book) {
@@ -166,8 +172,13 @@ exports.updateBook = async (req, res) => {
 // Função para deletar um livro
 exports.deleteBook = async (req, res) => {
 	try {
-		const book = await Book.deleteOne({ _id: req.params.id });
-		res.status(201).json(book);
+		const result = await Book.deleteOne({ _id: req.params.id });
+
+		if (result.deletedCount === 0) {
+			return res.status(404).json({ error: 'Livro não encontrado.' });
+		}
+
+		res.status(200).json({ message: 'Livro excluído com sucesso' });
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ error: 'Erro ao deletar o livro.' });
