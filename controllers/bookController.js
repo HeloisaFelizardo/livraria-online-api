@@ -112,6 +112,12 @@ exports.getBookById = async (req, res) => {
 
 // Função para buscar livros com base em um termo de pesquisa
 // controller/bookController.js
+
+// Função para remover acentos
+const removeAccents = (str) => {
+	return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+};
+
 exports.searchBooks = async (req, res) => {
 	try {
 		const { searchTerm } = req.query;
@@ -122,19 +128,33 @@ exports.searchBooks = async (req, res) => {
 
 		console.log('Buscando pelo termo:', searchTerm); // Depuração do termo
 
+		// Normalizando o termo de busca
+		const normalizedSearchTerm = removeAccents(searchTerm.trim().toLowerCase());
+		console.log('Termo de busca normalizado:', normalizedSearchTerm);
+
 		// Realizando a busca no MongoDB (sem filtro inicial)
 		const books = await Book.find();
 
 		//console.log('Livros encontrados:', books);
 
-		// Preparando o regex para busca (ajustando para caracteres especiais)
-		const regex = new RegExp(searchTerm.trim(), 'i'); // 'i' para case-insensitive
+		// Preparando o regex para busca
+		const regex = new RegExp(normalizedSearchTerm, 'i'); // 'i' para case-insensitive
 
 		// Filtrando os livros com base no termo de busca
 		const filteredBooks = books.filter((book) => {
 			console.log(`Testando livro: ${book.title}`); // Verificando cada livro
+
+			// Removendo acentos dos dados dos livros e verificando com o termo normalizado
+			const normalizedTitle = removeAccents(book.title.toLowerCase());
+			const normalizedAuthor = removeAccents(book.author.toLowerCase());
+			const normalizedDescription = removeAccents(book.description.toLowerCase());
+
 			// Filtra com base no título, autor e descrição
-			return regex.test(book.title) || regex.test(book.author) || regex.test(book.description);
+			return (
+				regex.test(normalizedTitle) ||
+				regex.test(normalizedAuthor) ||
+				regex.test(normalizedDescription)
+			);
 		});
 
 		console.log('Livros filtrados:', filteredBooks); // Verificar quais livros foram filtrados
