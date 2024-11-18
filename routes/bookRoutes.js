@@ -11,11 +11,14 @@ router.post('/upload', authMiddleware, upload, bookController.uploadBook);
 // Rota para listar todos os livros
 router.get('/', bookController.getAllBooks);
 
+// Rota para buscar livros pelo título
+router.get('/search', bookController.searchBooks);
+
 // Rota para buscar os dados de um livro
 router.get('/:id', bookController.getBookById);
 
 // Rota para baixar o PDF do livro (user e admin)
-router.get('/download/:id', authMiddleware, bookController.downloadBookPdf);
+router.get('/:id/download', authMiddleware, bookController.downloadBookPdf);
 
 // Rota para atualizar um livro (user e admin)
 router.patch('/:id', authMiddleware, upload, bookController.updateBook);

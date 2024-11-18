@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const connectDB = require('./config/db'); // Importa a conexão com o MongoDB
 require('dotenv').config();
@@ -6,29 +5,29 @@ const cors = require('cors');
 
 const app = express();
 
-// Habilita o cors e seta uma lista de 'origens'
+// Habilita o CORS com uma lista de origens
 app.use(
 	cors({
-		// Adicionando 'http://' antes dos endereços
 		origin: [
 			'http://localhost:3001',
 			'http://localhost:3002',
 			'http://localhost:5173',
 			'http://localhost:5174',
+			'http://localhost:5175',
 		],
-		methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], // Adicionando OPTIONS
+		methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 		allowedHeaders: ['Content-Type', 'Authorization'],
-		credentials: true, // Habilita o envio de cookies e credenciais
+		credentials: true, // Habilita envio de cookies
 	}),
 );
 
 // Middleware para parsing de JSON
 app.use(express.json());
 
-const PORT = process.env.PORT || 3000;
-
 // Conecte ao MongoDB
 connectDB();
+
+const PORT = process.env.PORT || 3000;
 
 // Importa as rotas de livros
 const bookRoutes = require('./routes/bookRoutes');

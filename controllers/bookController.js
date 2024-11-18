@@ -1,6 +1,7 @@
 const Book = require('../models/Book');
 const path = require('path');
 const fs = require('fs');
+const mongoose = require('mongoose');
 
 // Função para fazer upload de um livro e extrair a capa
 exports.uploadBook = async (req, res) => {
@@ -79,6 +80,11 @@ exports.getAllBooks = async (req, res) => {
 // Função para buscar um livro por ID
 exports.getBookById = async (req, res) => {
 	try {
+		const { id } = req.params; // Obtém o ID do livro
+		if (!mongoose.Types.ObjectId.isValid(id)) {
+			return res.status(400).json({ message: 'ID inválido.' });
+		}
+
 		// Buscando o livro pelo ID
 		const book = await Book.findById(req.params.id);
 
@@ -101,6 +107,48 @@ exports.getBookById = async (req, res) => {
 	} catch (error) {
 		console.error('Erro ao buscar o livro:', error);
 		res.status(500).json({ error: 'Erro ao buscar o livro' });
+	}
+};
+
+// Função para buscar livros com base em um termo de pesquisa
+// controller/bookController.js
+exports.searchBooks = async (req, res) => {
+	try {
+		const { searchTerm } = req.query;
+
+		if (!searchTerm || searchTerm.trim() === '') {
+			return res.status(400).json({ message: 'O termo de busca não pode estar vazio.' });
+		}
+
+		console.log('Buscando pelo termo:', searchTerm); // Depuração do termo
+
+		// Realizando a busca no MongoDB (sem filtro inicial)
+		const books = await Book.find();
+
+		//console.log('Livros encontrados:', books);
+
+		// Preparando o regex para busca (ajustando para caracteres especiais)
+		const regex = new RegExp(searchTerm.trim(), 'i'); // 'i' para case-insensitive
+
+		// Filtrando os livros com base no termo de busca
+		const filteredBooks = books.filter((book) => {
+			console.log(`Testando livro: ${book.title}`); // Verificando cada livro
+			// Filtra com base no título, autor e descrição
+			return regex.test(book.title) || regex.test(book.author) || regex.test(book.description);
+		});
+
+		console.log('Livros filtrados:', filteredBooks); // Verificar quais livros foram filtrados
+
+		// Verificando o resultado da busca
+		if (filteredBooks.length === 0) {
+			return res.status(404).json({ message: 'Nenhum livro encontrado com o termo fornecido.' });
+		}
+
+		// Retornando os livros filtrados
+		return res.json(filteredBooks);
+	} catch (error) {
+		console.error('Erro ao buscar livros:', error);
+		return res.status(500).json({ message: 'Erro ao buscar livros', error });
 	}
 };
 
