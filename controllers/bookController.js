@@ -122,6 +122,7 @@ exports.searchBooks = async (req, res) => {
 	try {
 		const { searchTerm } = req.query;
 
+		// Verificando se o termo de busca foi fornecido
 		if (!searchTerm || searchTerm.trim() === '') {
 			return res.status(400).json({ message: 'O termo de busca não pode estar vazio.' });
 		}
@@ -134,8 +135,6 @@ exports.searchBooks = async (req, res) => {
 
 		// Realizando a busca no MongoDB (sem filtro inicial)
 		const books = await Book.find();
-
-		//console.log('Livros encontrados:', books);
 
 		// Preparando o regex para busca
 		const regex = new RegExp(normalizedSearchTerm, 'i'); // 'i' para case-insensitive
@@ -164,8 +163,21 @@ exports.searchBooks = async (req, res) => {
 			return res.status(404).json({ message: 'Nenhum livro encontrado com o termo fornecido.' });
 		}
 
-		// Retornando os livros filtrados
-		return res.json(filteredBooks);
+		// Mapeando os livros filtrados para incluir o campo de imagem em Base64, caso necessário
+		const booksWithBase64Cover = filteredBooks.map((book) => ({
+			_id: book._id,
+			title: book.title,
+			author: book.author,
+			description: book.description,
+			coverUrl: book.coverUrl ? `data:image/jpeg;base64,${book.coverUrl.toString('base64')}` : null,
+			pdfUrl: book.pdfUrl,
+		}));
+
+		// Retornando os livros filtrados com as informações corretas
+		return res.status(200).json({
+			message: 'Livros encontrados',
+			books: booksWithBase64Cover,
+		});
 	} catch (error) {
 		console.error('Erro ao buscar livros:', error);
 		return res.status(500).json({ message: 'Erro ao buscar livros', error });
