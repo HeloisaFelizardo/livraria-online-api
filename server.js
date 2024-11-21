@@ -5,6 +5,9 @@ const cors = require('cors');
 
 const app = express();
 
+// Middleware para parsing de JSON
+app.use(express.json());
+
 // Habilita o CORS com uma lista de origens
 app.use(
 	cors({
@@ -21,27 +24,24 @@ app.use(
 	}),
 );
 
-// Middleware para parsing de JSON
-app.use(express.json());
-
 // Conecte ao MongoDB
 connectDB();
 
 const PORT = process.env.PORT || 3000;
 
-// Importa as rotas de livros
-const bookRoutes = require('./routes/bookRoutes');
-app.use('/books', bookRoutes);
-
-// Importa as rotas de usuários
-const userRoutes = require('./routes/userRoutes');
-app.use('/users', userRoutes);
+app.listen(PORT, () => {
+	console.log(`Servidor rodando na porta ${PORT}`);
+});
 
 // Rota básica
 app.get('/', (req, res) => {
 	res.send('API de Livraria Online');
 });
 
-app.listen(PORT, () => {
-	console.log(`Servidor rodando na porta ${PORT}`);
-});
+// Importa as rotas de usuários
+const userRoutes = require('./routes/userRoutes');
+app.use('/users', userRoutes);
+
+// Importa as rotas de livros
+const bookRoutes = require('./routes/bookRoutes');
+app.use('/books', bookRoutes);
