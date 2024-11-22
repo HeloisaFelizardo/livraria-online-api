@@ -2,7 +2,9 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
 	try {
-		await mongoose.connect(process.env.MONGODB_URL);
+		await mongoose.connect(process.env.MONGODB_URL, {
+			tls: true, // Garante que a conexão use TLS (seguro)
+		});
 		console.log('Conectado ao MongoDB:', mongoose.connection.name);
 	} catch (error) {
 		console.error('Erro ao conectar ao MongoDB:', error.message);
