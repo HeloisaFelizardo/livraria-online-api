@@ -8,6 +8,28 @@ const app = express();
 // Middleware para parsing de JSON
 app.use(express.json());
 
+const fs = require('fs');
+const path = require('path');
+
+// Função para garantir que as pastas de uploads existem
+const ensureUploadDirectories = () => {
+	const directories = [
+		path.join(__dirname, 'uploads'), // Diretório principal
+		path.join(__dirname, 'uploads', 'covers'), // Subdiretório para capas
+	];
+
+	directories.forEach((dir) => {
+		if (!fs.existsSync(dir)) {
+			// Cria o diretório se ele não existir
+			fs.mkdirSync(dir, { recursive: true });
+			console.log(`Diretório criado: ${dir}`);
+		}
+	});
+};
+
+// Chamar a função no início do servidor
+ensureUploadDirectories();
+
 // Habilita o CORS com uma lista de origens
 app.use(
 	cors({
