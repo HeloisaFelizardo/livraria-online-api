@@ -46,13 +46,13 @@ O projeto é uma API para uma livraria online, construída com Node.js e Express
 1. **Clone o repositório**:
 
    ```bash
-   git clone <URL_DO_REPOSITORIO>
+   https://github.com/HeloisaFelizardo/livraria-online-app.git
    ```
 
 2. **Navegue até o diretório do projeto**:
 
    ```bash
-   cd nome-do-projeto
+   cd livraria-online-app
    ```
 
 3. **Instale as dependências**:
